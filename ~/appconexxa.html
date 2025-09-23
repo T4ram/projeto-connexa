@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil do Usuário</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #6a11cb 0%, #2575fc 100%);
+      min-height: 100vh;
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .profile-container {
+      max-width: 420px;
+      margin: 48px auto;
+      padding: 32px 24px 28px 24px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+      background: rgba(255,255,255,0.95);
+      text-align: center;
+      position: relative;
+      transition: box-shadow 0.3s;
+    }
+    .profile-container:hover {
+      box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.32);
+    }
+    .profile-pic-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .profile-pic {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #2575fc;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 12px #2575fc44;
+      transition: border 0.2s;
+      cursor: pointer;
+      display: block;
+    }
+    .profile-pic:hover {
+      border: 4px solid #6a11cb;
+    }
+    .edit-btn, .save-btn, .cancel-btn {
+      margin-top: 18px;
+      padding: 10px 28px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #2575fc33;
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-right: 10px;
+    }
+    .edit-btn:hover, .save-btn:hover, .cancel-btn:hover {
+      background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+      box-shadow: 0 4px 16px #6a11cb33;
+    }
+    .cancel-btn {
+      background: #e74c3c;
+      background: linear-gradient(90deg, #e74c3c 0%, #ff7675 100%);
+      margin-right: 0;
+    }
+    .cancel-btn:hover {
+      background: linear-gradient(90deg, #ff7675 0%, #e74c3c 100%);
+    }
+    .edit-fields input, .edit-fields textarea {
+      width: 94%;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1.5px solid #d1d5db;
+      font-size: 1rem;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #f7faff;
+      transition: border 0.2s;
+    }
+    .edit-fields input:focus, .edit-fields textarea:focus {
+      border: 1.5px solid #2575fc;
+      outline: none;
+      background: #eaf1ff;
+    }
+    h2#username {
+      margin: 10px 0 4px 0;
+      font-size: 1.6rem;
+      color: #222;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    #bio {
+      color: #444;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      min-height: 32px;
+    }
+    .profile-info {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 0 10px 0;
+      font-size: 1.05rem;
+      color: #333;
+      padding: 0 10px;
+    }
+    .profile-info span {
+      font-weight: 600;
+      color: #2575fc;
+    }
+    .profile-badge-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .profile-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 4px 14px;
+      letter-spacing: 1px;
+      box-shadow: 0 1px 4px #2575fc22;
+      text-align: center;
+    }
+    @media (max-width: 500px) {
+      .profile-container {
+        padding: 18px 4vw 18px 4vw;
+      }
+      .profile-pic {
+        width: 90px;
+        height: 90px;
+      }
+    }
+    .edit-btn:last-child, .save-btn:last-child, .cancel-btn:last-child {
+      margin-right: 0;
+    }
+    .edit-btn:only-child, .save-btn:only-child, .cancel-btn:only-child {
+      margin-right: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container" id="profile">
+    <!-- O conteúdo será renderizado pelo JS -->
+  </div>
+
+  <script>
+    const profileData = {
+      pic: "https://i.pravatar.cc/130?img=5",
+      username: "Maria Silva",
+      bio: "Estudante de Engenharia apaixonada por tecnologia e inovação.",
+      age: 21,
+      course: "Engenharia de Computação"
+    };
+
+    function editProfile() {
+      const profile = document.getElementById('profile');
+      profile.innerHTML = `
+        <div class="profile-pic-wrapper">
+          <img src="${profileData.pic}" alt="Foto de Perfil" class="profile-pic" id="profilePic">
+          <input type="file" id="picInput" accept="image/*" style="margin-bottom:10px;">
+        </div>
+        <div class="profile-badge-wrapper">
+          <span class="profile-badge">Universitário</span>
+        </div>
+        <div class="edit-fields">
+          <input type="text" id="usernameInput" value="${profileData.username}" placeholder="Nome de usuário">
+          <textarea id="bioInput" rows="2" placeholder="Bio">${profileData.bio}</textarea>
+          <input type="number" id="ageInput" value="${profileData.age}" placeholder="Idade" min="0">
+          <input type="text" id="courseInput" value="${profileData.course}" placeholder="Curso">
+        </div>
+        <button class="save-btn" onclick="saveProfile()">Salvar</button>
+        <button class="cancel-btn" onclick="renderProfile()">Cancelar</button>
+      `;
+      document.getElementById('profilePic').onclick = () => document.getElementById('picInput').click();
+      document.getElementById('picInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            document.getElementById('profilePic').src = evt.target.result;
+            profileData.pic = evt.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    function saveProfile() {
+      profileData.username = document.getElementById('usernameInput').value;
+      profileData.bio = document.getElementById('bioInput').value;
+      profileData.age = document.getElementById('ageInput').value;
+      profileData.course = document.getElementById('courseInput').value;
+      renderProfile();
+    }
+
+    function renderProfile() {
+      const profile = document.getElementById('profile');
+      profile.innerHTML = `
+        <div class="profile-pic-wrapper">
+          <img src="${profileData.pic}" alt="Foto de Perfil" class="profile-pic" id="profilePic" title="Clique para trocar a foto">
+          <input type="file" id="picInput" style="display:none" accept="image/*">
+        </div>
+        <div class="profile-badge-wrapper">
+          <span class="profile-badge">Universitário</span>
+        </div>
+        <h2 id="username">${profileData.username}</h2>
+        <p id="bio">${profileData.bio}</p>
+        <div class="profile-info">
+          <div><strong>Idade:</strong> <span id="age">${profileData.age}</span></div>
+          <div><strong>Curso:</strong> <span id="course">${profileData.course}</span></div>
+        </div>
+        <button class="edit-btn" onclick="editProfile()">Editar Perfil</button>
+      `;
+      document.getElementById('profilePic').onclick = () => document.getElementById('picInput').click();
+      document.getElementById('picInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            document.getElementById('profilePic').src = evt.target.result;
+            profileData.pic = evt.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Inicializa o perfil
+    renderProfile();
+  </script>
+</body>
+</html>

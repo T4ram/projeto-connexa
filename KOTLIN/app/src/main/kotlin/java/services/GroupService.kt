@@ -4,6 +4,17 @@ import kotlin.models.Group
 
 class GroupService {
     private val groups = mutableListOf<Group>()
+    // Simulação: cada grupo tem lista de participantes (emails)
+    private val groupParticipants = mutableMapOf<String, MutableList<String>>() // groupName -> [emails]
+
+    fun addUserToGroup(groupName: String, email: String) {
+        groupParticipants.getOrPut(groupName) { mutableListOf() }.add(email)
+    }
+
+    fun getGroupsByUser(email: String): List<Group> {
+        val groupNames = groupParticipants.filter { it.value.contains(email) }.map { it.key }
+        return groups.filter { groupNames.contains(it.name) }
+    }
 
     fun createGroup(group: Group): String {
         if (groups.any { it.name == group.name }) {

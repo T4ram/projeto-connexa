@@ -1,3 +1,9 @@
+        get("/user/{email}") {
+            val email = call.parameters["email"] ?: ""
+            // Supondo que GroupService tenha método getGroupsByUser(email)
+            val grupos = groupService.getGroupsByUser(email)
+            call.respond(grupos)
+        }
 package kotlin.routes
 
 import io.ktor.server.application.*

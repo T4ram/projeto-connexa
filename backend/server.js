@@ -9,8 +9,18 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Servir frontend
+// Servir frontend principal
 app.use(express.static(path.join(__dirname, "../frontend")));
+// Servir arquivos públicos (inclui configuracao.html)
+app.use(express.static(path.join(__dirname, "public")));
+
+// Rotas diretas para telas de perfil e configuração
+app.get("/configuracao.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/configuracao.html"));
+});
+app.get("/teladeperfil.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/teladeperfil.html"));
+});
 
 // Banco SQLite
 const db = new sqlite3.Database("./backend/alunos.db", (err) => {
@@ -44,6 +54,9 @@ db.serialize(() => {
 });
 
 // ---------------- ROTAS API ----------------
+// Rota de configurações de usuário
+const configuracaoRouter = require('./routes/configuracao');
+app.use(configuracaoRouter);
 
 // Cadastro de aluno
 app.post("/cadastro", (req, res) => {

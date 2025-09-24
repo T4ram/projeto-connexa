@@ -111,14 +111,11 @@ function criarGrupo() {
 }
 
 function acessarPerfil() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (usuario) {
-    alert(`Perfil\nNome: ${usuario.nome}\nCurso: ${usuario.curso}`);
-  }
+  window.location.href = "teladeperfil.html";
 }
 
 function acessarConfig() {
-  alert("Abrindo configurações...");
+  window.location.href = "configuracao.html";
 }
 
 function carregarGrupos() {

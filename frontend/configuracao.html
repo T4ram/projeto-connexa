@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações de Usuário</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .config-container {
+      max-width: 420px;
+      margin: 48px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.18);
+      padding: 32px 24px 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      font-family: 'Montserrat', Arial, sans-serif;
+    }
+    h2 {
+      color: #2575fc;
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    select, input[type="checkbox"] {
+      padding: 8px;
+      border: 1px solid #2575fc;
+      border-radius: 4px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+    }
+    button {
+      background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      min-width: 100px;
+      transition: background 0.2s;
+      font-weight: 700;
+    }
+    button:disabled {
+      background: #b3d7ff;
+      cursor: not-allowed;
+    }
+    .message {
+      font-size: 0.95rem;
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      display: none;
+    }
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2575fc;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 768px) {
+      .config-container {
+        max-width: 95vw;
+        padding: 12px;
+      }
+      button {
+        padding: 10px 16px;
+      }
+    }
+    @media (max-width: 480px) {
+      .config-container {
+        padding: 6px;
+      }
+      button {
+        min-width: 80px;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="config-container" role="form" aria-labelledby="config-title">
+    <h2 id="config-title">Configurações de Usuário</h2>
+    <form id="configForm" autocomplete="off">
+      <div class="form-group">
+        <label for="tema">Tema</label>
+        <select id="tema" name="tema" required aria-required="true">
+          <option value="claro">Claro</option>
+          <option value="escuro">Escuro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="notificacoes">Notificações</label>
+        <input type="checkbox" id="notificacoes" name="notificacoes" aria-checked="false">
+      </div>
+      <div class="form-group">
+        <label for="idioma">Idioma</label>
+        <select id="idioma" name="idioma" required aria-required="true">
+          <option value="pt-BR">Português (Brasil)</option>
+          <option value="en-US">English (US)</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button type="submit" id="salvarBtn">Salvar</button>
+      </div>
+      <div class="spinner" id="spinner" aria-live="polite"></div>
+      <div class="message success" id="successMsg" role="alert">Configurações salvas com sucesso!</div>
+      <div class="message error" id="errorMsg" role="alert">Erro ao salvar configurações.</div>
+    </form>
+  </div>
+  <script>
+    const API_URL = "http://localhost:3000";
+    const configForm = document.getElementById('configForm');
+    const salvarBtn = document.getElementById('salvarBtn');
+    const spinner = document.getElementById('spinner');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    const temaSelect = document.getElementById('tema');
+    const idiomaSelect = document.getElementById('idioma');
+    const notificacoesCheckbox = document.getElementById('notificacoes');
+
+    function validarForm() {
+      const tema = temaSelect.value;
+      const idioma = idiomaSelect.value;
+      const temasPermitidos = ['claro', 'escuro'];
+      const idiomasPermitidos = ['pt-BR', 'en-US'];
+      if (!temasPermitidos.includes(tema)) return false;
+      if (!idiomasPermitidos.includes(idioma)) return false;
+      return true;
+    }
+
+    function setLoading(loading) {
+      spinner.style.display = loading ? 'block' : 'none';
+      salvarBtn.disabled = loading;
+    }
+
+    function showSuccess(msg) {
+      successMsg.textContent = msg;
+      successMsg.style.display = 'block';
+      setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+      setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+    }
+
+    async function carregarConfiguracao() {
+      setLoading(true);
+      try {
+        const resp = await fetch(`${API_URL}/api/configuracao`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!resp.ok) throw new Error('Erro ao buscar configurações.');
+        const data = await resp.json();
+        temaSelect.value = data.tema;
+        idiomaSelect.value = data.idioma;
+        notificacoesCheckbox.checked = !!data.notificacoes;
+      } catch (err) {
+        showError('Erro ao carregar configurações.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    configForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validarForm()) {
+        showError('Dados inválidos.');
+        return;
+      }
+      setLoading(true);
+      const payload = {
+        tema: temaSelect.value,
+        notificacoes: notificacoesCheckbox.checked,
+        idioma: idiomaSelect.value
+      };
+      try {
+        const resp = await fetch(`${API_URL}/api/configuracao`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!resp.ok) {
+          const errData = await resp.json();
+          throw new Error(errData.erro || 'Erro ao salvar.');
+        }
+        showSuccess('Configurações salvas com sucesso!');
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', carregarConfiguracao);
+  </script>
+</body>
+</html>
